@@ -1,11 +1,13 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
+const dotenv = require("dotenv");
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
+const cors = require('cors');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+dotenv.config();
 
 const morgan = require('morgan');
 const mongoose = require('mongoose');
@@ -13,11 +15,14 @@ const passport = require('passport');
 const config = require('./config/database');
 const api = require('./routes/api');
 
+
 const app = express();
+
+// console.log("config ", config);
 
 mongoose.connect(
   config.database, {
-  useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true
+  useNewUrlParser: true, useUnifiedTopology: true
 });
 
 // view engine setup
