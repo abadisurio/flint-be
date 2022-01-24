@@ -5,3 +5,8 @@ module.exports = {
     'secret': "nodeauthsecret",
     'database': database
 };
+
+// module.exports = {
+//     'secret': 'nodeauthsecret',
+//     'database': 'mongodb://localhost/node-auth'
+// };

@@ -7,86 +7,121 @@ var jwt = require('jsonwebtoken');
 var router = express.Router();
 var User = require("../models/user");
 var Movie = require("../models/movie");
+const bcrypt = require("bcryptjs");
+const auth = require("../middleware/auth");
+// const user = require('../models/user');
 
-router.post('/signup', function (req, res) {
-    if (!req.body.username || !req.body.password) {
-        res.json({ success: false, msg: 'Please pass username and password.' });
-    } else {
-        var newUser = new User({
-            username: req.body.username,
-            password: req.body.password
-        });
-        // save the user
-        newUser.save(function (err) {
-            if (err) {
-                return res.json({ success: false, msg: 'Username already exists.' });
-            }
-            res.json({ success: true, msg: 'Successful created new user.' });
-        });
-    }
-});
+router.post("/register", async (req, res) => {
+    console.log("req", req.body)
+    // Our register logic starts here
+    try {
+        // Get user input
+        const { username, email, password } = req.body;
 
-router.post('/signin', function (req, res) {
-    User.findOne({
-        username: req.body.username
-    }, function (err, user) {
-        if (err) throw err;
-
-        if (!user) {
-            res.status(401).send({ success: false, msg: 'Authentication failed. User not found.' });
-        } else {
-            // check if password matches
-            user.comparePassword(req.body.password, function (err, isMatch) {
-                if (isMatch && !err) {
-                    // if user is found and password is right create a token
-                    var token = jwt.sign(user, config.secret);
-                    // return the information including token as JSON
-                    res.json({ success: true, token: 'JWT ' + token });
-                } else {
-                    res.status(401).send({ success: false, msg: 'Authentication failed. Wrong password.' });
-                }
-            });
+        // Validate user input
+        if (!(email && password && username)) {
+            res.status(400).send("All input is required");
         }
-    });
-});
 
-router.post('/movie', passport.authenticate('jwt', { session: false }), function (req, res) {
-    var token = getToken(req.headers);
-    if (token) {
-        console.log(req.body);
-        var newMovie = new Movie({
-            movieId: req.body.movieId,
-            title: req.body.title,
-            genres: req.body.genres,
+        // check if user already exist
+        // Validate if user exist in our database
+        const oldUser = await User.findOne({ username });
+
+        if (oldUser) {
+            return res.status(409).send("User Already Exist. Please Login");
+        }
+
+        //Encrypt user password
+        encryptedPassword = await bcrypt.hash(password, 10);
+
+        // Create user in our database
+        const user = await User.create({
+            username,
+            email: email.toLowerCase(), // sanitize: convert email to lowercase
+            password: encryptedPassword,
         });
 
-        newMovie.save(function (err) {
-            if (err) {
-                return res.json({ success: false, msg: 'Save movie failed.' });
+        // Create token
+        const token = jwt.sign(
+            { user_id: user._id, username },
+            process.env.TOKEN_KEY,
+            {
+                expiresIn: "2h",
             }
-            res.json({ success: true, msg: 'Successful created new movie.' });
-        });
-    } else {
-        return res.status(403).send({ success: false, msg: 'Unauthorized.' });
+        );
+        // save user token
+        user.token = token;
+
+        // return new user
+        res.status(201).json(user);
+    } catch (err) {
+        console.log(err);
     }
+    // Our register logic ends here
 });
 
-router.get('/book', passport.authenticate('jwt', { session: false }), function (req, res) {
+router.post("/signin", async (req, res) => {
+
+    // Our login logic starts here
+    try {
+        // Get user input
+        const { email, password } = req.body;
+
+        // Validate user input
+        if (!(email && password)) {
+            res.status(400).send("All input is required");
+        }
+        // Validate if user exist in our database
+        const user = await User.findOne({ email });
+
+        if (user && (await bcrypt.compare(password, user.password))) {
+            // Create token
+            const token = jwt.sign(
+                { user_id: user._id, email },
+                process.env.TOKEN_KEY,
+                {
+                    expiresIn: "2h",
+                }
+            );
+
+            // save user token
+            user.token = token;
+
+            // user
+            return res.status(200).json(user.token);
+        }
+        return res.status(400).send("Invalid Credentials");
+    } catch (err) {
+        console.log(err);
+    }
+    // Our register logic ends here
+});
+
+router.post("/welcome", auth, (req, res) => {
+    console.log(req)
+    res.status(200).send("Welcome 🙌 ");
+});
+
+router.get('/movies', auth, (req, res) => {
+    // console.log("req: ", req.headers)
     var token = getToken(req.headers);
+    // console.log("token: ", token)
     if (token) {
         Book.find(function (err, books) {
             if (err) return next(err);
             res.json(books);
         });
     } else {
-        return res.status(403).send({ success: false, msg: 'Unauthorized.' });
+        // console.log("token: ", token)
+        return res.status(403).send({ success: false, msg: token });
     }
 });
 
 getToken = function (headers) {
     if (headers && headers.authorization) {
-        var parted = headers.authorization.split(' ');
-        if (parted.length === 2) {
+        var parted = headers.authorization.split('.');
+        console.log("parted", parted)
+        if (parted.length === 3) {
             return parted[1];
         } else {
             return null;
