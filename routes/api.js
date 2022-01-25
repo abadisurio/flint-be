@@ -1,15 +1,19 @@
 const express = require('express');
 
 const router = express.Router();
-const { registerUser, signinUser, getAllMovies } = require('../handler')
+const { registerUser, signinUser, getAllMovies, getAllMoviesWithLink, getAllMoviesWithDetail } = require('../handler')
 const auth = require("../middleware/auth");
 // const user = require('../models/user');
 
 router.post("/register", registerUser);
 router.post("/signin", signinUser);
-router.post("/getAllMovies", getAllMovies);
+
+router.get("/getAllMovies", getAllMovies);
+router.get("/getAllMoviesWithLink", getAllMoviesWithLink);
+
+router.get("/getAllMoviesWithDetail", getAllMoviesWithDetail);
 // top 25
-router.get('/movies', auth, getAllMovies);
+router.get('/movies', getAllMovies);
 
 
 router.post("/welcome", auth, (req, res) => {
