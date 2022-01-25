@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
+const Rating = require("../models/rating");
 
 module.exports = async (req, res) => {
     console.log("req", req.body)
@@ -21,11 +23,22 @@ module.exports = async (req, res) => {
             return res.status(409).send("User Already Exist. Please Login");
         }
 
+        const lastUser = await Rating.aggregate(
+            [
+                { $sort: { userId: -1 } },
+                { $limit: 1 },
+            ]
+        )
+        console.log("usersCount ", lastUser[0]['userId'])
+        // const userId
+
+
         //Encrypt user password
         encryptedPassword = await bcrypt.hash(password, 10);
 
         // Create user in our database
         const user = await User.create({
+            userId: parseInt(lastUser[0]['userId']) + 1,
             username,
             email: email.toLowerCase(), // sanitize: convert email to lowercase
             password: encryptedPassword,
