@@ -1,121 +1,59 @@
-var mongoose = require('mongoose');
-var passport = require('passport');
-var config = require('../config/database');
-require('../config/passport')(passport);
-var express = require('express');
-var jwt = require('jsonwebtoken');
-var router = express.Router();
-var User = require("../models/user");
-var Movie = require("../models/movie");
-const bcrypt = require("bcryptjs");
+const express = require('express');
+
+const router = express.Router();
+const { registerUser, signinUser, getAllMovies } = require('../handler')
 const auth = require("../middleware/auth");
 // const user = require('../models/user');
 
-router.post("/register", async (req, res) => {
-    console.log("req", req.body)
-    // Our register logic starts here
-    try {
-        // Get user input
-        const { username, email, password } = req.body;
+router.post("/register", registerUser);
+router.post("/signin", signinUser);
+router.post("/getAllMovies", getAllMovies);
+// top 25
+router.get('/movies', auth, getAllMovies);
 
-        // Validate user input
-        if (!(email && password && username)) {
-            res.status(400).send("All input is required");
-        }
-
-        // check if user already exist
-        // Validate if user exist in our database
-        const oldUser = await User.findOne({ username });
-
-        if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
-        }
-
-        //Encrypt user password
-        encryptedPassword = await bcrypt.hash(password, 10);
-
-        // Create user in our database
-        const user = await User.create({
-            username,
-            email: email.toLowerCase(), // sanitize: convert email to lowercase
-            password: encryptedPassword,
-        });
-
-        // Create token
-        const token = jwt.sign(
-            { user_id: user._id, username },
-            process.env.TOKEN_KEY,
-            {
-                expiresIn: "2h",
-            }
-        );
-        // save user token
-        user.token = token;
-
-        // return new user
-        res.status(201).json(user);
-    } catch (err) {
-        console.log(err);
-    }
-    // Our register logic ends here
-});
-
-router.post("/signin", async (req, res) => {
-
-    // Our login logic starts here
-    try {
-        // Get user input
-        const { email, password } = req.body;
-
-        // Validate user input
-        if (!(email && password)) {
-            res.status(400).send("All input is required");
-        }
-        // Validate if user exist in our database
-        const user = await User.findOne({ email });
-
-        if (user && (await bcrypt.compare(password, user.password))) {
-            // Create token
-            const token = jwt.sign(
-                { user_id: user._id, email },
-                process.env.TOKEN_KEY,
-                {
-                    expiresIn: "2h",
-                }
-            );
-
-            // save user token
-            user.token = token;
-
-            // user
-            return res.status(200).json(user.token);
-        }
-        return res.status(400).send("Invalid Credentials");
-    } catch (err) {
-        console.log(err);
-    }
-    // Our register logic ends here
-});
 
 router.post("/welcome", auth, (req, res) => {
     console.log(req)
     res.status(200).send("Welcome 🙌 ");
 });
 
-router.get('/movies', auth, (req, res) => {
-    // console.log("req: ", req.headers)
-    var token = getToken(req.headers);
-    // console.log("token: ", token)
-    if (token) {
-        Book.find(function (err, books) {
-            if (err) return next(err);
-            res.json(books);
-        });
-    } else {
-        // console.log("token: ", token)
-        return res.status(403).send({ success: false, msg: token });
-    }
-});
+
+// all movies
+// router.get('/movies', auth, (req, res) => {
+//     // console.log("req: ", req.headers)
+//     var token = getToken(req.headers);
+//     // console.log("token: ", token)
+//     if (token) {
+//         Movie.find(function (err, movies) {
+//             if (err) return next(err);
+//             res.json(movies);
+//         });
+//     } else {
+//         // console.log("token: ", token)
+//         return res.status(403).send({ success: false, msg: token });
+//     }
+// });
+
+// by id
+// router.get('/movies', auth, async (req, res) => {
+//     console.log("req: ", req.headers)
+//     // var token = getToken(req.headers);
+//     // if (token) {
+//     //     console.log("token: ", req.body)
+//     // }
+//     // res.json({ movie: req.body })
+//     res.json({ message: "ini movie" })
+//     const movie = await Movie.findOne({ _id: "61ee9931e001d4565b6e5ad6" })
+//     console.log("movie: ", movie);
+//     // movie.find((err, movies) => {
+//     //     if (err) return next(err);
+//     //     res.json(movies);
+//     // });
+//     // } else {
+//     //     // console.log("token: ", token)
+//     //     return res.status(403).send({ success: false, msg: token });
+//     // }
+// });
 
 getToken = function (headers) {
     if (headers && headers.authorization) {
