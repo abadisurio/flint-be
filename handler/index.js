@@ -4,6 +4,7 @@ const getAllMovies = require('./getAllMovies');
 const getAllMoviesWithLink = require('./getAllMoviesWithLink');
 const getAllMoviesWithDetail = require('./getAllMoviesWithDetail');
 const getMovieByUserRatings = require('./getMovieByUserRatings');
+const setMovieLevel = require('./setMovieLevel');
 
 module.exports = {
     registerUser,
@@ -11,5 +12,6 @@ module.exports = {
     getAllMovies,
     getAllMoviesWithLink,
     getAllMoviesWithDetail,
-    getMovieByUserRatings
+    getMovieByUserRatings,
+    setMovieLevel
 }
