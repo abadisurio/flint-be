@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const { registerUser, signinUser, getAllMovies, getAllMoviesWithLink,
-    getAllMoviesWithDetail, getMovieByUserRatings, setMovieLevel } = require('../handler')
+    getAllMoviesWithDetail, getMovieByUserRatings, setMovieLevel, getLikedMovies } = require('../handler')
 const auth = require("../middleware/auth");
 // const user = require('../models/user');
 
@@ -10,6 +10,8 @@ router.post("/register", registerUser);
 router.post("/signin", signinUser);
 router.post("/getMovieByUserRatings", auth, getMovieByUserRatings);
 router.post("/setMovieLevel", auth, setMovieLevel);
+
+router.get("/getLikedMovies", auth, getLikedMovies);
 
 router.get("/getAllMovies", getAllMovies);
 router.get("/getAllMoviesWithLink", getAllMoviesWithLink);
