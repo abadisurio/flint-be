@@ -9,24 +9,18 @@ module.exports = async (req, res) => {
 
         const oldLevel = await Level.findOne({ userId, movieId });
 
-        if (oldLevel) {
-            console.log("oldLevel ", oldLevel);
-            if (level === "-1" || level === "0") {
+        console.log(oldLevel);
 
-                await Level.deleteOne({ userId, movieId })
-                return res.status(409).send("Movie level deleted");
-            } else {
-                await Level.updateOne({ userId, movieId }, { level })
-                return res.status(409).send("Movie level updated");
-            }
-        }
-        if (level === "1" || level === "2") {
+        if (oldLevel) {
+            await Level.updateOne({ userId, movieId }, { level })
+            return res.status(409).send("Movie level updated");
+        } else {
             const newlevel = await Level.create({
                 userId, movieId, level
             })
-            res.status(201).json(newlevel);
+            return res.status(201).json(newlevel);
         }
-        return res.status(409).send("Movie level cannot be other than 1 or 2");
+        // return res.status(409).send("Movie level cannot be added");
     } catch (err) {
         console.log(err);
     }
