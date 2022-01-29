@@ -13,15 +13,17 @@ module.exports = async (req, res) => {
 
         if (oldLevel) {
             await Level.updateOne({ userId, movieId }, { level })
-            return res.status(409).send("Movie level updated");
+            return res.status(201).send("Movie level updated");
         } else {
-            const newlevel = await Level.create({
+            await Level.create({
                 userId, movieId, level
             })
-            return res.status(201).json(newlevel);
+            // return res.status(201).json(newlevel);
+            return res.status(201).send("Movie level added");
         }
         // return res.status(409).send("Movie level cannot be added");
     } catch (err) {
         console.log(err);
+        return res.status(500).send("Something is happened");
     }
 }

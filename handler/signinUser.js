@@ -30,11 +30,18 @@ module.exports = async (req, res) => {
             user.token = token;
 
             // user
-            return res.status(200).json(user.token);
+            // return res.status(200).json(user.token);
+            return res.status(202).json({
+                status: 'success',
+                data: {
+                    token: user.token
+                },
+            });
         }
-        return res.status(400).send("Invalid Credentials");
+        return res.status(401).send("Invalid Credentials");
     } catch (err) {
         console.log(err);
+        return res.status(500).send("Something is happened");
     }
     // Our register logic ends here
 }

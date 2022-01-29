@@ -55,10 +55,10 @@ module.exports = async (req, res) => {
         // save user token
         user.token = token;
 
-        // return new user
-        res.status(201).json(user);
+        return res.status(201).send("Success add user");
     } catch (err) {
         console.log(err);
+        return res.status(500).send("Something is happened");
     }
     // Our register logic ends here
 }
