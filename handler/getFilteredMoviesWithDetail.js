@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 
         const movies = await Movie.aggregate([
             { $match: { movieId: { $nin: likedMovieIdsArray } } },
-            { $sample: { size: 5 } },
+            { $sample: { size: 10 } },
             {
                 $lookup: {
                     from: "movieLinks",
@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
                         // console.log("data: ", data);
                         const movie_detail = {
                             id, imdb_id, title, original_title,
-                            "poster_path": `https://image.tmdb.org/t/p/w500/${poster_path}`
+                            "poster_path": `https://image.tmdb.org/t/p/w300${poster_path}`
                         }
                         movies_detail.push({ ...item, movie_detail })
                     })
