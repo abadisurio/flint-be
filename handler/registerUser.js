@@ -8,11 +8,15 @@ module.exports = async (req, res) => {
     // Our register logic starts here
     try {
         // Get user input
-        const { username, email, password } = req.body;
+        const { username, password } = req.body;
 
         // Validate user input
-        if (!(email && password && username)) {
-            res.status(400).send("All input is required");
+        if (!(password && username)) {
+            return res.status(400).json({
+                status: 'success',
+                message: "All input is required",
+                data: false,
+            })
         }
 
         // check if user already exist
@@ -20,7 +24,11 @@ module.exports = async (req, res) => {
         const oldUser = await User.findOne({ username });
 
         if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
+            return res.status(409).json({
+                status: 'success',
+                message: "User Already Exist",
+                data: false,
+            })
         }
 
         //Encrypt user password
@@ -30,7 +38,6 @@ module.exports = async (req, res) => {
         const user = await User.create({
             userId: '355',
             username,
-            email: email.toLowerCase(), // sanitize: convert email to lowercase
             password: encryptedPassword,
         });
 
