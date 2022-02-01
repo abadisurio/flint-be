@@ -23,22 +23,12 @@ module.exports = async (req, res) => {
             return res.status(409).send("User Already Exist. Please Login");
         }
 
-        const lastUser = await Rating.aggregate(
-            [
-                { $sort: { userId: -1 } },
-                { $limit: 1 },
-            ]
-        )
-        console.log("usersCount ", lastUser[0]['userId'])
-        // const userId
-
-
         //Encrypt user password
         encryptedPassword = await bcrypt.hash(password, 10);
 
         // Create user in our database
         const user = await User.create({
-            userId: parseInt(lastUser[0]['userId']) + 1,
+            userId: '355',
             username,
             email: email.toLowerCase(), // sanitize: convert email to lowercase
             password: encryptedPassword,
@@ -55,10 +45,17 @@ module.exports = async (req, res) => {
         // save user token
         user.token = token;
 
-        return res.status(201).send("Success add user");
+        return res.status(201).json({
+            status: 'success',
+            data: true,
+        })
     } catch (err) {
         console.log(err);
-        return res.status(500).send("Something is happened");
+        return res.status(500).json({
+            status: 'success',
+            message: err.message,
+            data: false,
+        })
     }
     // Our register logic ends here
 }
