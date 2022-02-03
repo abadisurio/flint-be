@@ -7,19 +7,19 @@ module.exports = async (req, res) => {
     // Our login logic starts here
     try {
         // Get user input
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
         // Validate user input
-        if (!(email && password)) {
+        if (!(username && password)) {
             res.status(400).send("All input is required");
         }
         // Validate if user exist in our database
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
 
         if (user && (await bcrypt.compare(password, user.password))) {
             // Create token
             const token = jwt.sign(
-                { user_id: user._id, email },
+                { user_id: user._id, username },
                 process.env.TOKEN_KEY,
                 {
                     expiresIn: "7d",
@@ -38,7 +38,12 @@ module.exports = async (req, res) => {
                 },
             });
         }
-        return res.status(401).send("Invalid Credentials");
+        // return res.status(401).send("Invalid Credentials");
+        return res.status(401).json({
+            status: 'failed',
+            data: false,
+            message: "Invalid Credentials"
+        });
     } catch (err) {
         console.log(err);
         return res.status(500).send("Something is happened");
