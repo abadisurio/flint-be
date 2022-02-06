@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
     try {
         const userId = req.user.user_id
         const lastId = req.body.lastId
-        const limit = 10
+        // const limit = 10
         console.log(userId, lastId)
 
         const query = lastId !== ''
@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
                 userId,
             }
 
-        console.log(query);
+        // console.log(query);
         const likedMovieIds = await Level.aggregate([
             {
                 $match: query
@@ -31,12 +31,12 @@ module.exports = async (req, res) => {
                     movieId: 1
                 }
             },
-            { $limit: limit }
+            // { $limit: limit }
         ])
 
-        console.log(likedMovieIds);
+        // console.log(likedMovieIds);
         const likedMovieIdsArray = likedMovieIds.map(item => item.movieId);
-        // // console.log(likedMovieIdsArray);
+        console.log(likedMovieIdsArray);
 
         const movies = await Movie.aggregate([
             { $match: { movieId: { $in: likedMovieIdsArray } } },
@@ -47,9 +47,12 @@ module.exports = async (req, res) => {
                     foreignField: "movieId",
                     as: "links"
                 }
+            },
+            {
+                $sort: { _id: -1 }
             }
         ])
-        console.log(movies)
+        // console.log(movies)
 
         const movies_detail = [];
         await Promise.all(
@@ -76,7 +79,9 @@ module.exports = async (req, res) => {
                 // return movies_detail;
             })
         )
-        console.log(movies_detail)
+        // console.log(movies_detail)
+        // movies_detail.sort((a, b) => { likedMovieIdsArray.indexOf(a) - likedMovieIdsArray.indexOf(b) })
+        movies_detail.map(item => console.log(item.title))
         res.status(200).json({
             status: 'success',
             data: {

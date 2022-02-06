@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
                 // return movies_detail;
             })
         )
-        console.log(movies_detail)
+        // console.log(movies_detail)
         res.status(200).json({
             status: 'success',
             data: {

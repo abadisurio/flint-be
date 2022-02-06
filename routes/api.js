@@ -15,7 +15,7 @@ router.post("/setMovieLevel", auth, setMovieLevel);
 
 router.get("/getMovieLevels", auth, getMovieLevels);
 router.get("/getFilteredMoviesWithDetail", auth, getFilteredMoviesWithDetail);
-router.get("/getLikedMoviesWithDetail", auth, getLikedMoviesWithDetail);
+router.post("/getLikedMoviesWithDetail", auth, getLikedMoviesWithDetail);
 
 router.get("/getAllMovies", getAllMovies);
 router.get("/getAllMoviesWithLink", getAllMoviesWithLink);
