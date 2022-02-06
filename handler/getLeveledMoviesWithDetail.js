@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
                             if (poster_path === null) throw "poster_path is null"
 
                             const movie_detail = {
-                                movie_id, tmbdb_id, imdb_id, title, original_title, overview, genres: item.genres,
+                                movie_id, tmbdb_id, imdb_id, title, original_title, overview, genres: item.genres, level,
                                 "poster_path": `https://image.tmdb.org/t/p/w300${poster_path}`
                             }
                             movies_detail.push({ ...item, movie_detail })
