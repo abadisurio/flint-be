@@ -7,17 +7,19 @@ module.exports = async (req, res) => {
 
     try {
         const userId = req.user.user_id
-        const lastId = req.body.lastId
+        const { lastId, level } = req.body
         // const limit = 10
         console.log(userId, lastId)
 
         const query = lastId !== ''
             ? {
                 userId,
+                level,
                 _id: { $gt: mongodb.ObjectID(lastId) }
             }
             : {
                 userId,
+                level
             }
 
         // console.log(query);
