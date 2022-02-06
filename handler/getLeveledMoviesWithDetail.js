@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
             }
 
         // console.log(query);
-        const likedMovieIds = await Level.aggregate([
+        const leveledMovieIds = await Level.aggregate([
             {
                 $match: query
             },
@@ -34,12 +34,12 @@ module.exports = async (req, res) => {
             // { $limit: limit }
         ])
 
-        // console.log(likedMovieIds);
-        const likedMovieIdsArray = likedMovieIds.map(item => item.movieId);
-        console.log(likedMovieIdsArray);
+        // console.log(leveledMovieIds);
+        const leveledMovieIdsArray = leveledMovieIds.map(item => item.movieId);
+        console.log(leveledMovieIdsArray);
 
         const movies = await Movie.aggregate([
-            { $match: { movieId: { $in: likedMovieIdsArray } } },
+            { $match: { movieId: { $in: leveledMovieIdsArray } } },
             {
                 $lookup: {
                     from: "movieLinks",
@@ -80,12 +80,12 @@ module.exports = async (req, res) => {
             })
         )
         // console.log(movies_detail)
-        // movies_detail.sort((a, b) => { likedMovieIdsArray.indexOf(a) - likedMovieIdsArray.indexOf(b) })
+        // movies_detail.sort((a, b) => { leveledMovieIdsArray.indexOf(a) - leveledMovieIdsArray.indexOf(b) })
         movies_detail.map(item => console.log(item.title))
         res.status(200).json({
             status: 'success',
             data: {
-                liked_movies: movies_detail,
+                leveled_movies: movies_detail,
                 item_count: movies_detail.length
             },
         })
